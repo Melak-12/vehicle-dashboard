@@ -4,8 +4,10 @@ import { FaPlus, FaEdit } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCreateVehicle } from "../services/api/verhcleApi";
 import Loading from "../loading";
+import { toast } from "react-toastify";
 
 function VehicleForm() {
+  
   const navigate = useNavigate();
   const location = useLocation();
   const initialData = location.state?.initialData || null; // Retrieve initialData from state
@@ -37,22 +39,29 @@ function VehicleForm() {
   }, [initialData, reset]);
 
   const submitHandler = async (data) => {
-    console.log(data);
-    await addVehicle(initialData ? { ...data, id: initialData.id } : data);
-
-    if (!initialData) {
-      reset({
-        name: "",
-        brand: "",
-        model: "",
-        year: "",
-        licensePlate: "",
-        color: "",
-        status: "Active",
-        category: "",
-      });
+    try {
+      
+      console.log(data);
+      await addVehicle(initialData ? { ...data, id: initialData.id } : data);
+  
+      if (!initialData) {
+        reset({
+          name: "",
+          brand: "",
+          model: "",
+          year: "",
+          licensePlate: "",
+          color: "",
+          status: "Active",
+          category: "",
+        });
+      }
+      toast.success(initialData? "Vehicle updated successfully" : "Vehicle added successfully");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      
     }
-    navigate("/");
   };
 
   return (

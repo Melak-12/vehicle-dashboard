@@ -2,7 +2,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 const API_BASE_URL = "http://192.168.204.15:4000/api/vehicles";
 
-// For fetching all vehicles
 const useGetAllVehicles = () =>
   useQuery({
     queryKey: ["vehicles"], // Unique key for this query
@@ -22,7 +21,6 @@ const useGetAllVehicles = () =>
     },
   });
 
-// For creating a vehicle
 const useCreateVehicle = () =>
   useMutation({
     mutationKey: ["createVehicle"], // Unique key for this mutation
@@ -44,10 +42,9 @@ const useCreateVehicle = () =>
     },
   });
 
-// For deleting a vehicle
 const useDeleteVehicle = () =>
   useMutation({
-    mutationKey: ["deleteVehicle"], // Unique key for this mutation
+    mutationKey: ["deleteVehicle"],
     mutationFn: async (payload) => {
       const response = await fetch(`${API_BASE_URL}/${payload}`, {
         method: "DELETE",
@@ -62,7 +59,7 @@ const useDeleteVehicle = () =>
         throw new Error(error.error?.message || "Deleting vehicle failed");
       }
 
-      return response.json(); // Resolves the JSON response
+      return response;
     },
   });
 

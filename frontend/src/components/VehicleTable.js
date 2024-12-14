@@ -7,7 +7,8 @@ import {
 } from "../services/api/verhcleApi";
 import Loading from "../loading";
 
-function VehicleTable({  onEdit }) {
+function VehicleTable() {
+  
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -23,7 +24,6 @@ function VehicleTable({  onEdit }) {
 
   const handleConfirmDelete = async () => {
     if (selectedVehicle) {
-      onDelete(selectedVehicle._id);
       console.warn("deleted",selectedVehicle._id);
       await deleteVehicle(selectedVehicle._id);
       setShowModal(false);
@@ -74,7 +74,7 @@ function VehicleTable({  onEdit }) {
           <tbody>
             {vehiclesData?.map((vehicle) => (
               <tr
-                key={vehicle.id}
+                key={vehicle._id}
                 className='odd:bg-gray-50 even:bg-primary/10 text-slate-700'
               >
                 <td className='px-4 py-3'>{vehicle.name}</td>
@@ -101,7 +101,6 @@ function VehicleTable({  onEdit }) {
 
                   <button
                     onClick={() => {
-                      // onEdit(vehicle);
                       navigate("/edit", { state: { initialData  :vehicle } });
                     }}
                     className='text-primary hover:text-secondary mr-3 text-xl'

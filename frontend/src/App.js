@@ -5,8 +5,6 @@ import VehicleTable from "./components/VehicleTable";
 import VehicleForm from "./components/VehicleForm";
 import { FaPlus } from "react-icons/fa";
 
-
-
 function App() {
 
 
@@ -38,9 +36,7 @@ function App() {
           <Route
             path='/edit'
             element={
-              <VehicleForm
-             
-              />
+              <VehicleForm/>
             }
           />
         </Routes>
