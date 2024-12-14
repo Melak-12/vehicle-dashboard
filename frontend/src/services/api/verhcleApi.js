@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-const API_BASE_URL = "http://192.168.204.15:4000/api/vehicles";
+const API_BASE_URL = "http://localhost:4000/api/vehicles";
 
 const useGetAllVehicles = () =>
   useQuery({
-    queryKey: ["vehicles"], // Unique key for this query
+    queryKey: ["vehicles"],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/`, {
         headers: {
@@ -17,13 +17,13 @@ const useGetAllVehicles = () =>
         throw new Error(error.error?.message || "Fetching vehicles failed");
       }
 
-      return response.json(); // Resolves the JSON response
+      return response.json();
     },
   });
 
 const useCreateVehicle = () =>
   useMutation({
-    mutationKey: ["createVehicle"], // Unique key for this mutation
+    mutationKey: ["createVehicle"],
     mutationFn: async (payload) => {
       const response = await fetch(`${API_BASE_URL}/`, {
         method: "POST",
@@ -38,17 +38,37 @@ const useCreateVehicle = () =>
         throw new Error(error.error?.message || "Creating vehicle failed");
       }
 
-      return response.json(); // Resolves the JSON response
+      return response.json();
+    },
+  });
+
+const useUpdateVehicle = () =>
+  useMutation({
+    mutationKey: ["updateVehicle"],
+    mutationFn: async ({ id, ...payload }) => {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || "Updating vehicle failed");
+      }
+
+      return response.json();
     },
   });
 
 const useDeleteVehicle = () =>
   useMutation({
     mutationKey: ["deleteVehicle"],
-    mutationFn: async (payload) => {
-      const response = await fetch(`${API_BASE_URL}/${payload}`, {
+    mutationFn: async (id) => {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: "DELETE",
-        body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",
         },
@@ -63,4 +83,9 @@ const useDeleteVehicle = () =>
     },
   });
 
-export { useGetAllVehicles, useCreateVehicle, useDeleteVehicle };
+export {
+  useGetAllVehicles,
+  useCreateVehicle,
+  useUpdateVehicle,
+  useDeleteVehicle,
+};

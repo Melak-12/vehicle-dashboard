@@ -2,16 +2,19 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useCreateVehicle } from "../services/api/verhcleApi";
 import Loading from "../loading";
 import { toast } from "react-toastify";
+import { useCreateVehicle, useDeleteVehicle, useUpdateVehicle } from "../services/api/verhcleApi";
 
 function VehicleForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialData = location.state?.initialData || null; // Retrieve initialData from state
+  const initialData = location.state?.initialData || null;
 
-  const { mutateAsync: addVehicle, isPending, isSuccess } = useCreateVehicle();
+  const { mutateAsync: addVehicle, isPending: isAddPending } =
+    useCreateVehicle();
+  const { mutateAsync: updateVehicle, isPending: isUpdatePending } =
+    useUpdateVehicle();
 
   const {
     register,
@@ -39,10 +42,14 @@ function VehicleForm() {
 
   const submitHandler = async (data) => {
     try {
-      console.log(data);
-      await addVehicle(initialData ? { ...data, id: initialData.id } : data);
-
-      if (!initialData) {
+      if (initialData) {
+        // Update vehicle
+        console.log(data,"id is",initialData._id);
+        await updateVehicle({ id: initialData._id, ...data });
+        toast.success("Vehicle updated successfully");
+      } else {
+        // Add new vehicle
+        await addVehicle(data);
         reset({
           name: "",
           brand: "",
@@ -53,15 +60,12 @@ function VehicleForm() {
           status: "Active",
           category: "",
         });
+        toast.success("Vehicle added successfully");
       }
-      toast.success(
-        initialData
-          ? "Vehicle updated successfully"
-          : "Vehicle added successfully"
-      );
       navigate("/");
     } catch (error) {
       console.error(error);
+      toast.error("Failed to save vehicle");
     }
   };
 
@@ -69,7 +73,7 @@ function VehicleForm() {
     <div className='container mx-auto px-4 py-12'>
       <form
         onSubmit={handleSubmit(submitHandler)}
-        className='bg-white p-8 rounded-xl shadow-xl max-w-3xl  mx-auto'
+        className='bg-white p-8 rounded-xl shadow-xl max-w-3xl mx-auto'
       >
         <h2 className='text-2xl font-semibold text-center text-primary mb-6'>
           {initialData ? "Edit Vehicle" : "Add Vehicle"}
@@ -217,7 +221,7 @@ function VehicleForm() {
           )}
         </button>
       </form>
-      {isPending && <Loading />}
+      {(isAddPending || isUpdatePending) && <Loading />}
     </div>
   );
 }

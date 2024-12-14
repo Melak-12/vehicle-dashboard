@@ -6,6 +6,7 @@ import {
   useGetAllVehicles,
 } from "../services/api/verhcleApi";
 import Loading from "../loading";
+import { toast } from "react-toastify";
 
 function VehicleTable() {
   
@@ -26,6 +27,8 @@ function VehicleTable() {
     if (selectedVehicle) {
       console.warn("deleted",selectedVehicle._id);
       await deleteVehicle(selectedVehicle._id);
+      await refetch()
+      toast.success("Vehicle deleted successfully")
       setShowModal(false);
       setSelectedVehicle(null);
     }
