@@ -111,7 +111,7 @@ function VehicleTable() {
   return (
     <div className="container mx-auto p-6 bg-gradient-to-b from-purple-100 to-white min-h-screen">
       <h1 className="text-4xl font-bold text-purple-800 mb-6">Vehicle Management</h1>
-      
+
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
           <p className="text-lg font-semibold text-purple-700">
@@ -138,8 +138,8 @@ function VehicleTable() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto">
+        <div className="overflow-x-auto h-[calc(100vh-300px)]">
+          <table className="w-full table-auto min-w-[1000px]">
             <thead>
               <tr className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                 <th className="px-4 py-3 text-left font-bold">Image</th>
@@ -242,7 +242,7 @@ function VehicleTable() {
           </div>
         </div>
       </div>
-
+  
       <VehicleUpdateModal
         show={showUpdateModal}
         onClose={() => setShowUpdateModal(false)}

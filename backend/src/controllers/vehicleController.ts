@@ -1,27 +1,8 @@
 import { Request, Response } from 'express';
 import Vehicle from '../models/Vehicle';
-import Category from '../models/Category';
-import cloudinary from '../config/cloudinary';
+import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
-
-const uploadImageToCloudinary = async (base64Image: string) => {
-  const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
-
-  try {
-    const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64Data}`, {
-      folder: 'vehicle',
-      quality: 'auto:low', 
-      format: 'jpg', 
-    });
-
-    return result.secure_url; 
-  } catch (error) {
-    console.error('Cloudinary upload error:', error);
-    return null; 
-  }
-};
-
-
+// Add a new vehicle
 export const addVehicle = async (req: Request, res: Response) => {
   try {
     const { 
@@ -33,23 +14,12 @@ export const addVehicle = async (req: Request, res: Response) => {
       color, 
       images, 
       status, 
-      category, 
     } = req.body;
-    
 
-    const categoryRecord = await Category.findById(category);
-    if (!categoryRecord) {
-      return res.status(400).json({ message: 'Invalid category' });
-    }
-
-    if (!images || images.length === 0) {
-      return res.status(400).json({ error: 'No images provided' });
-    }
-
+    // Process and upload images to Cloudinary
     const uploadedImageUrls: string[] = [];
     for (const base64Image of images) {
       if (base64Image) {
-        console.log("firstImage");
         const imageUrl = await uploadImageToCloudinary(base64Image);
         if (imageUrl) {
           uploadedImageUrls.push(imageUrl);
@@ -57,40 +27,56 @@ export const addVehicle = async (req: Request, res: Response) => {
       }
     }
 
-   const newVehicle = new Vehicle({
-    name, 
-    brand, 
-    model, 
-    year, 
-    licensePlate, 
-    color, 
-    images: uploadedImageUrls, 
-    status, 
-    category, 
-  });
+    // Create a new vehicle
+    const newVehicle = new Vehicle({
+      name, 
+      brand, 
+      model, 
+      year, 
+      licensePlate, 
+      color, 
+      images: uploadedImageUrls, 
+      status, 
+    });
 
+    // Save the vehicle to the database
     await newVehicle.save();
     res.status(201).json(newVehicle);
   } catch (error) {
+    console.error('Error adding vehicle:', error);
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
     res.status(400).json({ message: 'Error adding vehicle', error: errorMessage });
   }
 };
 
+// Update an existing vehicle
 export const updateVehicle = async (req: Request, res: Response) => {
   try {
-    const { category, images, ...updateData } = req.body;
+    const { 
+      name, 
+      brand, 
+      model, 
+      year, 
+      licensePlate, 
+      color, 
+      images, 
+      status 
+    } = req.body;
 
-    if (category) {
-      const categoryRecord = await Category.findById(category);
-      if (!categoryRecord) {
-        return res.status(400).json({ message: 'Invalid category' });
-      }
-    }
+    let updateData: any = {};
 
-    // Upload new images to Cloudinary if provided
-    const uploadedImageUrls: string[] = [];
+    // Update fields only if they are provided in the request body
+    if (name) updateData.name = name;
+    if (brand) updateData.brand = brand;
+    if (model) updateData.model = model;
+    if (year) updateData.year = year;
+    if (licensePlate) updateData.licensePlate = licensePlate;
+    if (color) updateData.color = color;
+    if (status) updateData.status = status;
+
+    // If new images are provided, upload them to Cloudinary
     if (images && images.length > 0) {
+      const uploadedImageUrls: string[] = [];
       for (const base64Image of images) {
         if (base64Image) {
           const imageUrl = await uploadImageToCloudinary(base64Image);
@@ -99,20 +85,22 @@ export const updateVehicle = async (req: Request, res: Response) => {
           }
         }
       }
-      updateData.images = uploadedImageUrls; // Update images if they were uploaded
+      updateData.images = uploadedImageUrls;
     }
 
-    // Update the vehicle in the database
+    // Find and update the vehicle by ID
     const updatedVehicle = await Vehicle.findByIdAndUpdate(
-      req.params.id,
-      { ...updateData, lastUpdated: new Date() },
+      req.params.id, 
+      { ...updateData, lastUpdated: new Date() }, 
       { new: true }
     );
 
+    // If no vehicle is found, return a 404 response
     if (!updatedVehicle) {
       return res.status(404).json({ message: 'Vehicle not found' });
     }
 
+    // Return the updated vehicle
     res.json(updatedVehicle);
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
@@ -120,10 +108,10 @@ export const updateVehicle = async (req: Request, res: Response) => {
   }
 };
 
-// Fetch all vehicles
+// Get all vehicles
 export const getVehicles = async (req: Request, res: Response) => {
   try {
-    const vehicles = await Vehicle.find().populate('category', 'name');
+    const vehicles = await Vehicle.find();
     res.json(vehicles);
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
@@ -131,7 +119,7 @@ export const getVehicles = async (req: Request, res: Response) => {
   }
 };
 
-// Fetch a single vehicle by ID
+// Get a specific vehicle by ID
 export const getVehicleById = async (req: Request, res: Response) => {
   try {
     const vehicle = await Vehicle.findById(req.params.id).populate('category', 'name');
@@ -145,39 +133,43 @@ export const getVehicleById = async (req: Request, res: Response) => {
   }
 };
 
-
-
-// Update vehicle status
+// Update the status of a vehicle
 export const updateVehicleStatus = async (req: Request, res: Response) => {
-  const { status } = req.body;  // Get the new status from request body
-  const { id } = req.params;  // Get the vehicle ID from the URL parameters
+  const { status } = req.body;
+  const { id } = req.params;
 
   try {
-    // Validate status value
-    const validStatuses = ['available', 'sold', 'pending'];  // Define valid statuses
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value. Allowed values are: available, sold, pending.' });
-    }
-
-    // Find the vehicle by ID
     const vehicle = await Vehicle.findById(id);
     if (!vehicle) {
       return res.status(404).json({ message: 'Vehicle not found.' });
     }
 
-    // Update the vehicle's status
     vehicle.status = status;
-    vehicle.lastUpdated = new Date();  // Optionally update the lastUpdated field
+    vehicle.lastUpdated = new Date();
 
-    // Save the updated vehicle to the database
     const updatedVehicle = await vehicle.save();
 
-    // Send the updated vehicle as response
     res.status(200).json(updatedVehicle);
   } catch (error) {
-    console.error('Error updating vehicle status:', error);
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
     res.status(500).json({ message: 'Error updating vehicle status', error: errorMessage });
   }
 };
 
+// Delete a vehicle by ID
+export const deleteVehicleById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const deletedVehicle = await Vehicle.findByIdAndDelete(id);
+
+    if (!deletedVehicle) {
+      return res.status(404).json({ message: 'Vehicle not found' });
+    }
+
+    res.status(200).json({ message: 'Vehicle deleted successfully', vehicle: deletedVehicle });
+  } catch (error) {
+    const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';
+    res.status(500).json({ message: 'Error deleting vehicle', error: errorMessage });
+  }
+};
