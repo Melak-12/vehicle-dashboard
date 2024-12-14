@@ -1,22 +1,15 @@
 import express from 'express';
-import multer from 'multer';
-import {
-  addVehicle,
-  updateVehicle,
-  getVehicles,
-  getVehicleById,
-  updateVehicleStatus,deleteVehicle
-} from '../controllers/vehicleController';
+import * as vehicleController from '../controllers/vehicleController';
+import { validateVehicleInput, validateStatusUpdate } from '../middleware/vehicleValidator';
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/', upload.array('images', 5), addVehicle);
-router.patch('/:id', upload.array('images', 5), updateVehicle);
-router.get('/', getVehicles);
-router.get('/:id', getVehicleById);
-router.patch('/:id/status', updateVehicleStatus);
-router.delete('/:id', deleteVehicle)
-
+router.post('/', validateVehicleInput, vehicleController.addVehicle);
+router.put('/:id', validateVehicleInput, vehicleController.updateVehicle);
+router.get('/', vehicleController.getVehicles);
+router.get('/:id', vehicleController.getVehicleById);
+router.patch('/:id/status', validateStatusUpdate, vehicleController.updateVehicleStatus);
+router.delete('/:id', vehicleController.deleteVehicleById);
 
 export default router;
+
