@@ -1,29 +1,38 @@
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useGetAllVehicles } from "../services/api/verhcleApi";
+import {
+  useDeleteVehicle,
+  useGetAllVehicles,
+} from "../services/api/verhcleApi";
+import Loading from "../loading";
 
-function VehicleTable({ vehicles, onEdit, onDelete }) {
+function VehicleTable({  onEdit }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const { data:vehiclesData, isLoading, refetch } = useGetAllVehicles();
-  console.log("fetched data", vehicles);
+  const { data: vehiclesData, refetch } = useGetAllVehicles();
+  const { mutateAsync: deleteVehicle, isPending } = useDeleteVehicle();
+
+  console.log("fetched data", vehiclesData);
+
   const handleDeleteClick = (vehicle) => {
     setSelectedVehicle(vehicle);
     setShowModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedVehicle) {
-      onDelete(selectedVehicle.id);
-      setShowModal(false); 
+      onDelete(selectedVehicle._id);
+      console.warn("deleted",selectedVehicle._id);
+      await deleteVehicle(selectedVehicle._id);
+      setShowModal(false);
       setSelectedVehicle(null);
     }
   };
 
   const handleCancelDelete = () => {
-    setShowModal(false); 
+    setShowModal(false);
     setSelectedVehicle(null);
   };
 
@@ -89,10 +98,11 @@ function VehicleTable({ vehicles, onEdit, onDelete }) {
                 </td>
                 <td className='px-4 py-3'>{vehicle.category}</td>
                 <td className='px-4 py-3'>
+
                   <button
                     onClick={() => {
-                      onEdit(vehicle);
-                      navigate("/edit");
+                      // onEdit(vehicle);
+                      navigate("/edit", { state: { initialData  :vehicle } });
                     }}
                     className='text-primary hover:text-secondary mr-3 text-xl'
                   >
@@ -138,6 +148,7 @@ function VehicleTable({ vehicles, onEdit, onDelete }) {
           </div>
         </div>
       )}
+      {isPending && <Loading />}
     </div>
   );
 }

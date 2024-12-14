@@ -49,7 +49,7 @@ const useDeleteVehicle = () =>
   useMutation({
     mutationKey: ["deleteVehicle"], // Unique key for this mutation
     mutationFn: async (payload) => {
-      const response = await fetch(`${API_BASE_URL}/vehicles/`, {
+      const response = await fetch(`${API_BASE_URL}/${payload}`, {
         method: "DELETE",
         body: JSON.stringify(payload),
         headers: {

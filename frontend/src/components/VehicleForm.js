@@ -1,13 +1,17 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useCreateVehicle } from "../services/api/verhcleApi";
 import Loading from "../loading";
-function VehicleForm({ onSubmit, initialData }) {
-  const navigate = useNavigate(); 
+
+function VehicleForm() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialData = location.state?.initialData || null; // Retrieve initialData from state
+
   const { mutateAsync: addVehicle, isPending, isSuccess } = useCreateVehicle();
-  
+
   const {
     register,
     handleSubmit,
@@ -32,10 +36,10 @@ function VehicleForm({ onSubmit, initialData }) {
     }
   }, [initialData, reset]);
 
-  const submitHandler = async(data) => {
+  const submitHandler = async (data) => {
     console.log(data);
     await addVehicle(initialData ? { ...data, id: initialData.id } : data);
-    onSubmit(initialData ? { ...data, id: initialData.id } : data);
+
     if (!initialData) {
       reset({
         name: "",
@@ -203,7 +207,7 @@ function VehicleForm({ onSubmit, initialData }) {
           )}
         </button>
       </form>
-      {isPending && <Loading/>}
+      {isPending && <Loading />}
     </div>
   );
 }
