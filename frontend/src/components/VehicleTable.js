@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useGetAllVehicles } from "../services/api/verhcleApi";
 
 function VehicleTable({ vehicles, onEdit, onDelete }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-
+  const { data:vehiclesData, isLoading, refetch } = useGetAllVehicles();
+  console.log("fetched data", vehicles);
   const handleDeleteClick = (vehicle) => {
     setSelectedVehicle(vehicle);
     setShowModal(true);
@@ -61,7 +63,7 @@ function VehicleTable({ vehicles, onEdit, onDelete }) {
             </tr>
           </thead>
           <tbody>
-            {vehicles.map((vehicle) => (
+            {vehiclesData?.map((vehicle) => (
               <tr
                 key={vehicle.id}
                 className='odd:bg-gray-50 even:bg-primary/10 text-slate-700'

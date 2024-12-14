@@ -33,29 +33,29 @@ export const addVehicle = async (req: Request, res: Response) => {
       color, 
       images, 
       status, 
-      category, 
+      // category, 
     } = req.body;
     
 
-    const categoryRecord = await Category.findById(category);
-    if (!categoryRecord) {
-      return res.status(400).json({ message: 'Invalid category' });
-    }
+    // const categoryRecord = await Category.findById(category);
+    // if (!categoryRecord) {
+    //   return res.status(400).json({ message: 'Invalid category' });
+    // }
 
-    if (!images || images.length === 0) {
-      return res.status(400).json({ error: 'No images provided' });
-    }
+    // if (!images || images.length === 0) {
+    //   return res.status(400).json({ error: 'No images provided' });
+    // }
 
-    const uploadedImageUrls: string[] = [];
-    for (const base64Image of images) {
-      if (base64Image) {
-        console.log("firstImage");
-        const imageUrl = await uploadImageToCloudinary(base64Image);
-        if (imageUrl) {
-          uploadedImageUrls.push(imageUrl);
-        }
-      }
-    }
+    // const uploadedImageUrls: string[] = [];
+    // for (const base64Image of images) {
+    //   if (base64Image) {
+    //     console.log("firstImage");
+    //     const imageUrl = await uploadImageToCloudinary(base64Image);
+    //     if (imageUrl) {
+    //       uploadedImageUrls.push(imageUrl);
+    //     }
+    //   }
+    // }
 
    const newVehicle = new Vehicle({
     name, 
@@ -64,9 +64,10 @@ export const addVehicle = async (req: Request, res: Response) => {
     year, 
     licensePlate, 
     color, 
-    images: uploadedImageUrls, 
+     images,
+      //  uploadedImageUrls, 
     status, 
-    category, 
+    // category, 
   });
 
     await newVehicle.save();
@@ -123,7 +124,8 @@ export const updateVehicle = async (req: Request, res: Response) => {
 // Fetch all vehicles
 export const getVehicles = async (req: Request, res: Response) => {
   try {
-    const vehicles = await Vehicle.find().populate('category', 'name');
+    const vehicles = await Vehicle.find()
+      // .populate('category', 'name');
     res.json(vehicles);
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error';

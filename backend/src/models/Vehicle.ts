@@ -9,7 +9,7 @@ export interface IVehicle extends Document {
   color: string;
   images: string[];
   status: string;
-  category: mongoose.Types.ObjectId;
+  // category: mongoose.Types.ObjectId;
   lastUpdated: Date;
 }
 
@@ -22,7 +22,7 @@ const VehicleSchema: Schema = new Schema({
   color: { type: String, required: true },
   images: { type: [String], required: true },
   status: { type: String, required: true },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  // category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   lastUpdated: { type: Date, default: Date.now }
 });
 
