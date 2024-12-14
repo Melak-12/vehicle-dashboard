@@ -9,7 +9,7 @@ export interface IVehicle extends Document {
   color: string;
   images: string[];
   status: 'available' | 'sold' | 'pending';
-  category: mongoose.Types.ObjectId;
+  // category: mongoose.Types.ObjectId;
   lastUpdated: Date;
 }
 
@@ -27,7 +27,7 @@ const VehicleSchema: Schema = new Schema({
     enum: ['available', 'sold', 'pending'],
     default: 'available'
   },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  // category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   lastUpdated: { type: Date, default: Date.now }
 });
 
