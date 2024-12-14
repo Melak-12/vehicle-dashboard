@@ -242,7 +242,6 @@ function VehicleTable() {
           </div>
         </div>
       </div>
-
       <VehicleUpdateModal
         show={showUpdateModal}
         onClose={() => setShowUpdateModal(false)}
