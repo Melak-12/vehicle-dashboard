@@ -7,7 +7,6 @@ import Loading from "../loading";
 import { toast } from "react-toastify";
 
 function VehicleForm() {
-  
   const navigate = useNavigate();
   const location = useLocation();
   const initialData = location.state?.initialData || null; // Retrieve initialData from state
@@ -40,10 +39,9 @@ function VehicleForm() {
 
   const submitHandler = async (data) => {
     try {
-      
       console.log(data);
       await addVehicle(initialData ? { ...data, id: initialData.id } : data);
-  
+
       if (!initialData) {
         reset({
           name: "",
@@ -56,11 +54,14 @@ function VehicleForm() {
           category: "",
         });
       }
-      toast.success(initialData? "Vehicle updated successfully" : "Vehicle added successfully");
+      toast.success(
+        initialData
+          ? "Vehicle updated successfully"
+          : "Vehicle added successfully"
+      );
       navigate("/");
     } catch (error) {
       console.error(error);
-      
     }
   };
 

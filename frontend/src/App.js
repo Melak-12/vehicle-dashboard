@@ -6,8 +6,6 @@ import VehicleForm from "./components/VehicleForm";
 import { FaPlus } from "react-icons/fa";
 
 function App() {
-
-
   return (
     <Router>
       <div className='font-sans bg-blue-50 min-h-screen'>
@@ -24,21 +22,12 @@ function App() {
                   <FaPlus /> Add Vehicle
                 </button>
 
-                <VehicleTable
-                />
+                <VehicleTable />
               </>
             }
           />
-          <Route
-            path='/add'
-            element={<VehicleForm />}
-          />
-          <Route
-            path='/edit'
-            element={
-              <VehicleForm/>
-            }
-          />
+          <Route path='/add' element={<VehicleForm />} />
+          <Route path='/edit' element={<VehicleForm />} />
         </Routes>
       </div>
     </Router>
